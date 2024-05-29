@@ -27,10 +27,17 @@ if (flutterVersionName == null) {
 }
 
 android {
+    compileSdkVersion 33
     namespace = "com.dchatbout.r.chatbot"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
-
+    defaultConfig {
+        applicationId "com.dchatbout.r.chatbot"
+        minSdkVersion 21
+        targetSdkVersion 33
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
