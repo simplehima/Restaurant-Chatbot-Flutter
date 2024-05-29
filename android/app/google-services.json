@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "406373396070",
+    "project_id": "chating-d4444",
+    "storage_bucket": "chating-d4444.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:406373396070:android:33c1af46f4bf2f1f5807a7",
+        "android_client_info": {
+          "package_name": "com.chatbot.d"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "406373396070-pdt859dugr2n7ci37nmnuogv7qbtbutr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA1MXym6b_y8eHZZgJzr7WyNcT3pWCFpPs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "406373396070-pdt859dugr2n7ci37nmnuogv7qbtbutr.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "406373396070-oceaiqgjkfpq4k2mneovhok3ol2mlr67.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "felipecastrosales.chat"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:406373396070:android:3655c9de7c4f55395807a7",
+        "android_client_info": {
+          "package_name": "com.dchatbout.r.chatbot"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "406373396070-pdt859dugr2n7ci37nmnuogv7qbtbutr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA1MXym6b_y8eHZZgJzr7WyNcT3pWCFpPs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "406373396070-pdt859dugr2n7ci37nmnuogv7qbtbutr.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "406373396070-oceaiqgjkfpq4k2mneovhok3ol2mlr67.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "felipecastrosales.chat"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
