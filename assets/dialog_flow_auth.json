@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "restaurant-chatbot-qedj",
+  "private_key_id": "f700043f830c08c6667cab61e67e0b193364cf34",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQClAA7thwy/RhKU\n26SjuBTrg8Y/0gKzBtyU2hdimExmPlPLsdbnMKH12szC4HNvl5EdzIMq7FhcVly/\n+m61CjGytjILP/Y2jTulD9AFKWazotctafWoLLRXP7zO6OI4e8aUnBm/OJx6T3B1\nsyOYs2BfaWrlb70klTxOxLY5WG/5tHQInSeEGlo4jgbwQ48jJC3/II+hjZIB9LDj\n+ya6V8glbN1UPblVWVmgC+89dQ4aY8NIqVbtlOiklLhzpvuw5KjPr/YscUORlutE\noW88BnTM0z8E40tC+BnUONlLpcxb2x1F9XtXEzQh0cOBmJLlj57BsEEmEvBaPN/t\nnejX8+U5AgMBAAECggEAPvbbu3aqvZ8O3jFHDZbknM8naxlIIGtA56il/eDiXq3w\nKi4ONSEQ3RIGy2L9ihsLrJRrhYi1W181e6kkb/+Y4Xq3dCWPXlfc5+s11ZJr96bv\neAwUS33rv9O5yDeEhEtvhyxeguMmi2IfJzsaHV5uK1q+CRnv0rMEVYaphw6hhGbj\ndr0GWC81L0lPI6cXHT3g/Eg86X6vNlQEVutt9f44wGhcL6EJDG9Ase3Wrxxe2KVi\n0dq75+AL/YLF7q1bBKpUeCgh71475t3z+2LKl1Uj0g4qyPMfZ0011/EoLL3DD/iH\nZhXNgfFZ6Y2yrz/vkMdeeMn3lnguVDkMj9mA0HcftQKBgQDmLlvMN+00Z2G9PFjr\nikuSz18WQWnn4CVXi0c0FO4BwqqI6irgLkKmcQk2QGRHIzGbYY46FpZ9QLiMNl2T\nw5NuSGo/ikn4AUwXDeXf3qa9Gn/Csboi+A4HdtiJ1KILY8DGN94CFLAImZOGCPJG\n47iGaDCgNUQXuhapjx5qaEIl1wKBgQC3ggii6J9e+Ls2lO3LUh+c+euyaj8m7t8o\nQ5Z37crT+7/6w8rrxIpjsmDHIBqYImFsIrTQOZnJo+57JYPbws1kzKXct7WePcdi\nz/ub30vD8oyDh68q6KZQ6tTzt8UuY0qhlvBdaK7RYcdvXRZLWEF/wVdqpIzAm2fu\nhX9qWlzLbwKBgQDS5Tq6W6t7zhThGz+lX2pqspE+hOSRzO6pzTSJ5XtEJaW2GEb8\na6YpdXupN0opW3eCE9oKItPzIq9z2APY9OJJsxOV8BBhqF6c6ODrQsamkHbqXYhb\nrca81AkGD8oAgX8InftNEMNQvdVKgzvn85EHpMKYpvUigB9vb2/AspGYtQKBgDFo\nPEUIVqhuVZF7hY6hfMt56oCt5HTqCYFAuUlu55YtiOHOR1s1HoF7LF1QgniFgS9p\nJL+PUp2cmn/jeN35U+2Yv+tuNuL1BTLQhpDQDQkjy7s6E+p8mxLcNxurVdaIezaI\negzcO306U0TjjjYY/AGWn5+h0Benf9MTdFvBGozXAoGAFGcb8k8JB04VGt+FxY+B\nuxjxhUM4PZdkze35n5ZNvgO2L9wu3jEWT5T7ClPR7oXRdCpel266CxF42g1rdDhx\nIBnSV1oe2VtEifHHEElb975LCK6p6N2JCmRmc/TdbRv/chceent3X6m5qtACwbGQ\nisFKoQR20kG5FGAq6NUwkt4=\n-----END PRIVATE KEY-----\n",
+  "client_email": "ibrahimazab@restaurant-chatbot-qedj.iam.gserviceaccount.com",
+  "client_id": "107936118348163089916",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/ibrahimazab%40restaurant-chatbot-qedj.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
