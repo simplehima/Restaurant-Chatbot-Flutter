@@ -19,6 +19,8 @@ class _RegistrationGoogleState extends State<RegistrationGoogle> {
   @override
   void initState() {
     super.initState();
+    // Check if user data exists, if yes, navigate to home page
+    _checkUserData();
     // Initialize userEmail here instead of during declaration to pass it 3al4n ageb el email we a7oto fe firestore
     userEmail = widget.userEmail ?? '';
   }
@@ -41,6 +43,19 @@ class _RegistrationGoogleState extends State<RegistrationGoogle> {
           context) => const Home()),
     );
   }
+  Future<void> _checkUserData() async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+      await FirebaseFirestore.instance.collection('users').doc(user?.uid).get();
+      if (snapshot.exists) {
+        // User data exists, navigate to home page
+        _navigateToHomePage();
+      }
+    } catch (error) {
+      print('Error checking user data: $error');
+    }
+  }
 
 
   bool isValidPhoneNumber(String phoneNumber) {
@@ -62,6 +77,12 @@ class _RegistrationGoogleState extends State<RegistrationGoogle> {
     return regex.hasMatch(email);
   }
 
+  void _navigateToHomePage() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const Home()),
+    );
+  }
   void _showAlertDialog(BuildContext context, String title, String message) {
     showDialog(
       context: context,
