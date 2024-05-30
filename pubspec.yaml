@@ -34,3 +34,6 @@ flutter:
 
   assets:
     - assets/dialog_flow_auth.json
+    - assets/icon/ChatbotLogolarge.png
+    - assets/icon/ChatbotLogo.png
+    - assets/icon/google.png
