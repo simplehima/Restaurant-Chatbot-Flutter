@@ -1,6 +1,5 @@
 import 'package:dialog_flowtter/dialog_flowtter.dart';
 import 'package:flutter/material.dart';
-import '../services/Messages.dart';
 
 class ChatbotScreen extends StatefulWidget {
   const ChatbotScreen({Key? key}) : super(key: key);
@@ -29,21 +28,21 @@ class _ChatbotState extends State<ChatbotScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('AMBot'),
+        title: const Text('RCBot'),
       ),
       body: Container(
         child: Column(
           children: [
             Expanded(child: MessagesScreen(messages: messages)),
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              color: Colors.deepPurple,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              color: Colors.brown,
               child: Row(
                 children: [
                   Expanded(
                     child: TextField(
                       controller: _controller,
-                      style: TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white),
                     ),
                   ),
                   IconButton(
@@ -51,7 +50,7 @@ class _ChatbotState extends State<ChatbotScreen> {
                       sendMessage(_controller.text);
                       _controller.clear();
                     },
-                    icon: Icon(Icons.send),
+                    icon: const Icon(Icons.send),
                   ),
                 ],
               ),
@@ -64,7 +63,7 @@ class _ChatbotState extends State<ChatbotScreen> {
 
   void sendMessage(String text) async {
     if (text.isEmpty) {
-      print('Message is empty');
+      _showAlertDialog(context, 'Empty Message', 'Please type in a message first.');
       return;
     }
 
@@ -83,7 +82,7 @@ class _ChatbotState extends State<ChatbotScreen> {
         addMessage(response.message!.text!.text![0]);
       });
     } catch (e) {
-      print('Error: $e');
+      _showAlertDialog(context, 'Something Went Wrong', 'Error: : $e');
     }
   }
 
@@ -124,8 +123,8 @@ class MessagesScreen extends StatelessWidget {
                     ),
                   ),
                   color: messages[index]['isUserMessage']
-                      ? Colors.grey.shade800
-                      : Colors.grey.shade900.withOpacity(0.8),
+                      ? Colors.brown
+                      : Colors.brown.shade900.withOpacity(0.8),
                 ),
                 constraints: BoxConstraints(maxWidth: w * 2 / 3),
                 child: Text(messages[index]['message']),
@@ -138,4 +137,21 @@ class MessagesScreen extends StatelessWidget {
       itemCount: messages.length,
     );
   }
+}
+void _showAlertDialog(BuildContext context, String title, String message) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('OK'),
+          ),
+        ],
+      );
+    },
+  );
 }
