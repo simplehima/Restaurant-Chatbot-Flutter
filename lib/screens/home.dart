@@ -12,14 +12,13 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  late User _user; // Add this variable to hold the logged-in user
+// Add this variable to hold the logged-in user
   late String _username = ''; // Add this variable to hold the username
 
   @override
   void initState() {
     super.initState();
     // Get the current user
-    _user = FirebaseAuth.instance.currentUser!;
     _loadUsername();// Load the username
   }
 
@@ -40,13 +39,19 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Welcome $_username'), // Display the user's username
-      ),
-      drawer: _buildDrawer(context),
-      body: const Center(
-        child: Text('Welcome to RC Bot!'),
+    return WillPopScope(
+      onWillPop: () async {
+        // Prevent going back to login screen if logged in
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Welcome $_username'), // Display the user's username
+        ),
+        drawer: _buildDrawer(context),
+        body: const Center(
+          child: Text('Welcome to RC Bot!'),
+        ),
       ),
     );
   }
