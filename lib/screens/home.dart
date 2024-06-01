@@ -205,14 +205,15 @@ class _HomeState extends State<Home> {
   void _updateCartLocally(String productId, int quantityChange, Map<String, dynamic> product) {
     setState(() {
       int selectedQuantity = _selectedQuantities[productId] ?? 0;
-      selectedQuantity += quantityChange;
-      if (selectedQuantity < 0) {
-        selectedQuantity = 0;
+      int newQuantity = selectedQuantity + quantityChange;
+      if (newQuantity >= 0) {
+        _selectedQuantities[productId] = newQuantity;
+        _updateCart(productId, quantityChange, product);
       }
-      _selectedQuantities[productId] = selectedQuantity;
-      _updateCart(productId, quantityChange, product);
     });
   }
+
+
   Drawer _buildDrawer(BuildContext context) {
     return Drawer(
       child: ListView(
