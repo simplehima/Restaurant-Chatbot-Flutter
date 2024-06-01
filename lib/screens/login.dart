@@ -9,6 +9,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'AdminHome.dart';
+
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key,});
@@ -40,30 +42,54 @@ class LoginPage extends StatelessWidget {
       return;
     }
 
-
     try {
       // Sign in with email and password
-      await _auth.signInWithEmailAndPassword(
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      // Get user data from Firestore
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+
+      // Fetch the user document from Firestore using the user's UID
+      DocumentSnapshot<Map<String, dynamic>> userDoc = await FirebaseFirestore.instance
           .collection('users')
-          .doc(email)
+          .doc(userCredential.user!.uid) // Use the user's UID obtained after login
           .get();
 
+      if (userDoc.exists) {
+        // Safely extract the isAdmin field
+        dynamic isAdminField = userDoc.data()?['isAdmin'];
+        bool isAdmin = false;
+        if (isAdminField is bool) {
+          isAdmin = isAdminField;
+        } else if (isAdminField is String) {
+          isAdmin = isAdminField.toLowerCase() == 'true';
+        }
+
+        if (isAdmin) {
+          // User is an admin, navigate to the AdminPage
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => AdminPage()),
+          );
+        } else {
+          // User is not an admin, navigate to the Home screen
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => Home()),
+          );
+        }
+      } else {
+        // User document does not exist, navigate to the Home screen
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (
-              context) => const Home()), // Navigate to MainLayout
+          MaterialPageRoute(builder: (context) => Home()),
         );
-
-    }catch (error) {
-      // for debugging HimaAzab
+      }
+    } catch (error) {
       // Handle login errors
-      // print(error.toString());
+      print('Error during login: $error');
       if (error is FirebaseAuthException) {
+        print('FirebaseAuthException: ${error.code}');
         if (error.code == 'user-not-found') {
           _showAlertDialog(context, 'User Not Found', 'No user found with this email.');
         } else if (error.code == 'wrong-password') {
@@ -72,6 +98,7 @@ class LoginPage extends StatelessWidget {
           _showAlertDialog(context, 'Login Failed', 'An error occurred during login.');
         }
       } else {
+        print('Other error occurred during login');
         _showAlertDialog(context, 'Login Failed', 'An error occurred during login.');
       }
     }
