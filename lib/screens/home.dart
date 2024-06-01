@@ -1,3 +1,4 @@
+import 'package:RCB/screens/profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -241,17 +242,22 @@ class _HomeState extends State<Home> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('Settings'),
-            onTap: () {
-              // Handle the settings navigation
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.info),
-            title: const Text('About'),
-            onTap: () {
-              // Handle the about navigation
+            leading: const Icon(Icons.account_circle),
+            title: const Text('Profile'),
+            onTap: () async {
+              try {
+                User? user = FirebaseAuth.instance.currentUser;
+                if (user != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ProfilePage(uid: user.uid)),
+                  );
+                } else {
+                  // Handle case where user is not authenticated
+                }
+              } catch (error) {
+                print('Error: $error');
+              }
             },
           ),
           ListTile(
