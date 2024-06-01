@@ -10,7 +10,10 @@ class Home extends StatefulWidget {
 
   @override
   _HomeState createState() => _HomeState();
+
 }
+
+
 
 class _HomeState extends State<Home> {
   late String _username = ''; // Add this variable to hold the username
@@ -18,7 +21,15 @@ class _HomeState extends State<Home> {
   Map<String, int> _selectedQuantities = {};
   List<String> _categories = [];
   late String _selectedCategory = 'All'; // Default category to 'All'
+  List<Map<String, dynamic>> _cartItems = [];
 
+  void _resetCart() {
+    setState(() {
+      _cartItems.clear();
+      _selectedQuantities.clear();
+      _cartItemCount = 0;
+    });
+  }
 
 
   @override
@@ -58,8 +69,36 @@ class _HomeState extends State<Home> {
     }
   }
 
+
+  void _updateCart(String productId, int quantityChange, Map<String, dynamic> product) {
+    final existingIndex = _cartItems.indexWhere((item) => item['productId'] == productId);
+    if (existingIndex != -1) {
+      setState(() {
+        // Update existing item quantity
+        _cartItems[existingIndex]['quantity'] += quantityChange;
+        // Remove item if quantity becomes 0
+        if (_cartItems[existingIndex]['quantity'] == 0) {
+          _cartItems.removeAt(existingIndex);
+        }
+      });
+    } else {
+      setState(() {
+        // Add new item to cart
+        _cartItems.add({
+          'productId': productId,
+          'name': product['name'],
+          'price': product['price'],
+          'quantity': quantityChange,
+        });
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Calculate the total number of items in the cart
+    int totalCartItems = _selectedQuantities.values.fold(0, (sum, quantity) => sum + quantity);
+
     return WillPopScope(
       onWillPop: () async {
         // Prevent going back to login screen if logged in
@@ -78,18 +117,45 @@ class _HomeState extends State<Home> {
                     // Navigate to the Cart screen when cart button is pressed
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => CartPage()),
-                    );
+                      MaterialPageRoute(builder: (context) => CartPage(cartItems: _cartItems,  resetCart: _resetCart,)),
+                    ).then((data) {
+                      if (data != null) {
+                        setState(() {
+                          // Extract removed item and updated cart items from the returned data
+                          var removedItem = data['removedItem'];
+                          var updatedCartItems = data['updatedCartItems'];
+
+                          if (removedItem != null && updatedCartItems != null) {
+                            // Check if the removed item exists in the cart items
+                            var existingItem = removedItem != null && removedItem['productId'] != null
+                                ? _cartItems.firstWhere(
+                                  (item) => item['productId'] == removedItem['productId'],
+                              orElse: () => <String, dynamic>{}, // Provide an empty map as the default value
+                            )
+                                : <String, dynamic>{};
+
+                            if (existingItem != null) {
+                              // Update the item counter and the cart counter
+                              _selectedQuantities[removedItem['productId']] = 0;
+                              _cartItemCount -= (existingItem['quantity'] ?? 0) as int;
+
+                            }
+                            // Update the cart items with the updated cart items
+                            _cartItems = updatedCartItems;
+                          }
+                        });
+                      }
+                    });
                   },
                 ),
-                if (_cartItemCount > 0) // Display the number of items selected
+                if (totalCartItems > 0) // Display the total number of items in the cart
                   Positioned(
                     right: 0,
                     child: CircleAvatar(
                       backgroundColor: Colors.red,
                       radius: 9,
                       child: Text(
-                        '$_cartItemCount',
+                        '$totalCartItems',
                         style: TextStyle(fontSize: 12, color: Colors.white),
                       ),
                     ),
@@ -121,8 +187,7 @@ class _HomeState extends State<Home> {
                 );
               },
               child: Icon(Icons.chat), // Add the chatbot icon to the FAB
-              backgroundColor: Colors
-                  .brown, // Customize the FAB background color
+              backgroundColor: Colors.brown, // Customize the FAB background color
             ),
             SizedBox(height: 10),
           ],
@@ -130,7 +195,6 @@ class _HomeState extends State<Home> {
       ),
     );
   }
-
   void signOut(BuildContext context) async {
     await FirebaseAuth.instance.signOut();
     Navigator.pushReplacement(
@@ -138,7 +202,17 @@ class _HomeState extends State<Home> {
       MaterialPageRoute(builder: (context) => LoginPage()),
     );
   }
-
+  void _updateCartLocally(String productId, int quantityChange, Map<String, dynamic> product) {
+    setState(() {
+      int selectedQuantity = _selectedQuantities[productId] ?? 0;
+      selectedQuantity += quantityChange;
+      if (selectedQuantity < 0) {
+        selectedQuantity = 0;
+      }
+      _selectedQuantities[productId] = selectedQuantity;
+      _updateCart(productId, quantityChange, product);
+    });
+  }
   Drawer _buildDrawer(BuildContext context) {
     return Drawer(
       child: ListView(
@@ -214,19 +288,19 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildProductGrid() {
-    return StreamBuilder<QuerySnapshot>(
-      stream: _selectedCategory != 'All'
+    return FutureBuilder<QuerySnapshot>(
+      future: _selectedCategory != 'All'
           ? FirebaseFirestore.instance
           .collection('products')
           .where('category', isEqualTo: _selectedCategory)
-          .snapshots()
-          : FirebaseFirestore.instance.collection('products').snapshots(),
+          .get()
+          : FirebaseFirestore.instance.collection('products').get(),
       builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        }
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
         }
 
         final products = snapshot.data?.docs ?? [];
@@ -251,30 +325,32 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildProductTile(String productId, Map<String, dynamic> product) {
-    int selectedQuantity = _selectedQuantities[productId] ?? 0;
     double productPrice = product['price'] ?? 0.0;
-    double totalCost = selectedQuantity * productPrice;
 
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20), // Rounded corners for the whole card
-      ),
-      child: SingleChildScrollView(
-        child: Container(
+    return StatefulBuilder(
+      builder: (context, setState) {
+        int selectedQuantity = _selectedQuantities[productId] ?? 0;
+        double totalCost = selectedQuantity * productPrice;
+
+        return Card(
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20), // Rounded corners for the top left
-                  topRight: Radius.circular(20), // Rounded corners for the top right
-                ),
-                child: Image.network(
-                  product['imageUrl'],
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  height: 200, // Adjust the height as needed
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
+                  child: Image.network(
+                    product['imageUrl'],
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                  ),
                 ),
               ),
               Padding(
@@ -298,29 +374,14 @@ class _HomeState extends State<Home> {
                         IconButton(
                           icon: Icon(Icons.remove),
                           onPressed: () {
-                            setState(() {
-                              if (_selectedQuantities[productId] != null &&
-                                  _selectedQuantities[productId]! > 0) {
-                                _selectedQuantities[productId] =
-                                    _selectedQuantities[productId]! - 1;
-                                _cartItemCount--; // Decrease cart item count
-                              }
-                            });
+                            _updateCartLocally(productId, -1, product);
                           },
                         ),
                         Text(selectedQuantity.toString()),
                         IconButton(
                           icon: Icon(Icons.add),
                           onPressed: () {
-                            setState(() {
-                              if (_selectedQuantities[productId] != null) {
-                                _selectedQuantities[productId] =
-                                    _selectedQuantities[productId]! + 1;
-                              } else {
-                                _selectedQuantities[productId] = 1;
-                              }
-                              _cartItemCount++; // Increase cart item count
-                            });
+                            _updateCartLocally(productId, 1, product);
                           },
                         ),
                       ],
@@ -335,8 +396,8 @@ class _HomeState extends State<Home> {
               ),
             ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
