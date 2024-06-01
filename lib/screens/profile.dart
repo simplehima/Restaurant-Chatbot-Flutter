@@ -15,6 +15,7 @@ class _ProfilePageState extends State<ProfilePage> {
   late TextEditingController _apartmentController;
   late TextEditingController _buildingController;
   late TextEditingController _floorController;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -53,13 +54,19 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Text('Error: ${snapshot.error}'),
             );
           }
-          if (!snapshot.hasData) {
+          if (!snapshot.hasData || !snapshot.data!.exists) {
             return Center(
               child: Text('No data found.'),
             );
           }
 
           Map<String, dynamic> userData = snapshot.data!.data() as Map<String, dynamic>;
+
+          // Initialize controllers with existing data
+          _streetController.text = userData['street'] ?? '';
+          _apartmentController.text = userData['apartment'] ?? '';
+          _buildingController.text = userData['building'] ?? '';
+          _floorController.text = userData['floor'] ?? '';
 
           return SingleChildScrollView(
             padding: EdgeInsets.all(20.0),
@@ -92,7 +99,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
                 // Save Button
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: _isLoading ? null : () {
                     // Call a function to save the edited address information
                     _saveAddressInfo(
                       _streetController.text,
@@ -101,7 +108,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       _floorController.text,
                     );
                   },
-                  child: Text('Save'),
+                  child: _isLoading ? CircularProgressIndicator() : Text('Save'),
                 ),
               ],
             ),
@@ -111,17 +118,17 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildUserInfoTile(String title, String value) {
+  Widget _buildUserInfoTile(String title, dynamic value) {
     return ListTile(
       title: Text(
         title,
         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
       ),
-      subtitle: Text(value),
+      subtitle: Text(value.toString()),
     );
   }
 
-  Widget _buildEditableUserInfoTile(String title, String value, TextEditingController controller) {
+  Widget _buildEditableUserInfoTile(String title, String? value, TextEditingController controller) {
     return ListTile(
       title: Text(
         title,
@@ -137,50 +144,50 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _saveAddressInfo(String street, String apartment, String building, String floor) {
-    // Save the edited address information to Firestore
+    if (street.isEmpty || apartment.isEmpty || building.isEmpty || floor.isEmpty) {
+      _showDialog('Error', 'Please fill in all fields.');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
     FirebaseFirestore.instance.collection('users').doc(widget.uid).update({
       'street': street,
       'apartment': apartment,
       'building': building,
       'floor': floor,
     }).then((value) {
-      // Show a confirmation dialog or message
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Address Information Saved'),
-            content: Text('Your address information has been updated successfully.'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
+      setState(() {
+        _isLoading = false;
+      });
+      _showDialog('Address Information Saved', 'Your address information has been updated successfully.');
     }).catchError((error) {
-      // Handle errors
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Error'),
-            content: Text('Failed to save address information: $error'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
+      setState(() {
+        _isLoading = false;
+      });
+      _showDialog('Error', 'Failed to save address information: $error');
     });
+  }
+
+  void _showDialog(String title, String content) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(content),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
