@@ -125,35 +125,6 @@ class _HomeState extends State<Home> {
                   .brown, // Customize the FAB background color
             ),
             SizedBox(height: 10),
-            FloatingActionButton(
-              onPressed: () {
-                // Navigate to the CartPage when the FAB is pressed
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => CartPage()),
-                );
-              },
-              child: Stack(
-                children: [
-                  Icon(Icons.shopping_cart), // Add the cart icon to the FAB
-                  if (_cartItemCount >
-                      0) // Display the number of items selected
-                    Positioned(
-                      right: 0,
-                      child: CircleAvatar(
-                        backgroundColor: Colors.red,
-                        radius: 9,
-                        child: Text(
-                          '$_cartItemCount',
-                          style: TextStyle(fontSize: 12, color: Colors.white),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-              backgroundColor: Colors
-                  .brown, // Customize the FAB background color
-            ),
           ],
         ),
       ),
