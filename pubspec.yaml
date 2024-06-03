@@ -10,7 +10,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  dialog_flowtter: ^0.3.3
   firebase_core: ^2.25.5
   firebase_auth: ^4.17.6
   cloud_firestore: ^4.17.3
@@ -33,7 +32,6 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/dialog_flow_auth.json
     - assets/icon/ChatbotLogolarge.png
     - assets/icon/ChatbotLogo.png
     - assets/icon/google.png
