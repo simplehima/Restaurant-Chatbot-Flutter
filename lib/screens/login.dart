@@ -19,9 +19,6 @@ class LoginPage extends StatelessWidget {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
 
-  // Firebase Auth instance
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
   // Validate email format
   bool _isValidEmail(String email) {
     return RegExp(r'^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
