@@ -1,23 +1,21 @@
 import 'package:flutter/material.dart';
 
-class MessagesScreen extends StatefulWidget {
-  final List messages;
-  const MessagesScreen({Key? key, required this.messages}) : super(key: key);
+class MessagesScreen extends StatelessWidget {
+  final List<Map<String, dynamic>> messages;
+  final ScrollController scrollController;
+  const MessagesScreen({Key? key, required this.messages, required this.scrollController}) : super(key: key);
 
-  @override
-  _MessagesScreenState createState() => _MessagesScreenState();
-}
-
-class _MessagesScreenState extends State<MessagesScreen> {
   @override
   Widget build(BuildContext context) {
     var w = MediaQuery.of(context).size.width;
-    return ListView.separated(
+    return ListView.builder(
+      controller: scrollController,
+      itemCount: messages.length,
       itemBuilder: (context, index) {
         return Container(
           margin: EdgeInsets.all(10),
           child: Row(
-            mainAxisAlignment: widget.messages[index]['isUserMessage']
+            mainAxisAlignment: messages[index]['isUserMessage']
                 ? MainAxisAlignment.end
                 : MainAxisAlignment.start,
             children: [
@@ -28,25 +26,35 @@ class _MessagesScreenState extends State<MessagesScreen> {
                     bottomLeft: Radius.circular(20),
                     topRight: Radius.circular(20),
                     bottomRight: Radius.circular(
-                      widget.messages[index]['isUserMessage'] ? 0 : 20,
+                      messages[index]['isUserMessage'] ? 0 : 20,
                     ),
                     topLeft: Radius.circular(
-                      widget.messages[index]['isUserMessage'] ? 20 : 0,
+                      messages[index]['isUserMessage'] ? 20 : 0,
                     ),
                   ),
-                  color: widget.messages[index]['isUserMessage']
-                      ? Colors.grey.shade800
-                      : Colors.grey.shade900.withOpacity(0.8),
+                  color: messages[index]['isUserMessage']
+                      ? Colors.brown
+                      : Colors.brown.shade900.withOpacity(0.8),
                 ),
                 constraints: BoxConstraints(maxWidth: w * 2 / 3),
-                child: Text(widget.messages[index]['message']),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(messages[index]['message']),
+                    if (messages[index]['imageUrl'] != null)
+                      Image.network(
+                        messages[index]['imageUrl'],
+                        width: 100, // Adjust the width as needed
+                        height: 100, // Adjust the height as needed
+                        fit: BoxFit.cover, // Adjust the fit as needed
+                      ),
+                  ],
+                ),
               ),
             ],
           ),
         );
       },
-      separatorBuilder: (_, i) => Padding(padding: EdgeInsets.only(top: 10)),
-      itemCount: widget.messages.length,
     );
   }
 }
