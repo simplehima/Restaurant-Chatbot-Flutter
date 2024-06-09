@@ -1,4 +1,5 @@
 import 'package:RCB/screens/profile.dart';
+import 'package:RCB/screens/reservation_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -238,6 +239,16 @@ class _HomeState extends State<Home> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => ChatbotScreen()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.restaurant),
+            title: const Text('Reserve Table'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ReservationPage()),
               );
             },
           ),
