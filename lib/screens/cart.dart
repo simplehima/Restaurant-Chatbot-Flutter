@@ -102,7 +102,7 @@ class _CartPageState extends State<CartPage> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text('Order Completed'),
+              title: Text('Order Placed.'),
               content: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
