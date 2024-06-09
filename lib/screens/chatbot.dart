@@ -81,22 +81,31 @@ class _ChatbotState extends State<ChatbotScreen> {
       return;
     }
 
-    // Fetch product based on user input
-    Product? product = findProduct(text);
+    // Fetch product or predefined response based on user input
+    String? response = findResponse(text);
 
-    if (product != null) {
+    if (response != null) {
       setState(() {
         addMessage(text, isUserMessage: true); // Add the user's message
-        addMessage(
-          '${product.name}\nPrice: \$${product.price}\nDescription: ${product.description}',
-          imageUrl: product.imageUrl, // Pass the image URL
-        );
+        addMessage(response);
       });
     } else {
-      setState(() {
-        addMessage(text, isUserMessage: true); // Add the user's message
-        addMessage('Sorry, I don\'t understand that.');
-      });
+      Product? product = findProduct(text);
+
+      if (product != null) {
+        setState(() {
+          addMessage(text, isUserMessage: true); // Add the user's message
+          addMessage(
+            '${product.name}\nPrice: \$${product.price}\nDescription: ${product.description}',
+            imageUrl: product.imageUrl, // Pass the image URL
+          );
+        });
+      } else {
+        setState(() {
+          addMessage(text, isUserMessage: true); // Add the user's message
+          addMessage('Sorry, I don\'t understand that.');
+        });
+      }
     }
 
     _scrollToBottom();
@@ -110,6 +119,34 @@ class _ChatbotState extends State<ChatbotScreen> {
         curve: Curves.easeOut,
       );
     });
+  }
+
+
+  String? findResponse(String userQuery) {
+    // Convert user query to lowercase for case-insensitive matching
+    userQuery = userQuery.toLowerCase();
+
+    // Define a map of queries and corresponding responses
+    Map<String, String> queryResponses = {
+      'what are your working hours': 'Our working hours are from 12 AM to 1 AM.',
+      'what is the operating hours': 'Our operating hours are from 12 AM to 1 AM.',
+      'what is the delivery time': 'Our delivery time is from 12 AM to 1 AM.',
+      'when will the order arrive': 'Your order will arrive in 30 to 60 minutes.',
+      'how long the order expected to arrive': 'Your order is expected to arrive in 30 to 60 minutes.',
+      'what is the expected time for order to arrive': 'The expected time for your order to arrive is 30 to 60 minutes.',
+      'why is the order being late': 'We apologize because we are very busy.',
+      'why is my order too late': 'Sorry for the delay in the order due to pressure.',
+    };
+
+    // Iterate through query responses to check if any match the user query
+    for (var query in queryResponses.keys) {
+      if (userQuery.contains(query.toLowerCase())) {
+        return queryResponses[query];
+      }
+    }
+
+    // If no predefined response is found, return null
+    return null;
   }
 
   Product? findProduct(String userQuery) {
@@ -217,7 +254,7 @@ class _ChatbotState extends State<ChatbotScreen> {
       'Beef Bacon Sandwich ingredients please ': 'D7ndDTMatnlSwBzo6jMb',
 
       // Cheese with avocado toast
-      'cheese with avocado toast': 'Piy20zDW7yZUdEMR3QGd',
+      'cheese with avocado toast':'D7ndDTMatnlSwBzo6jMb',
       'tell me more about Cheese with avocado toast': 'Piy20zDW7yZUdEMR3QGd',
       'how much is the Cheese with avocado toast': 'Piy20zDW7yZUdEMR3QGd',
       'how much does the Cheese with avocado toast cost': 'Piy20zDW7yZUdEMR3QGd',
