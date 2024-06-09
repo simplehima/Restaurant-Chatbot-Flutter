@@ -25,81 +25,81 @@ class LoginPage extends StatelessWidget {
   }
 
 
-  // sign user in method
-  Future<void> signUserIn(BuildContext context) async {
-    String email = usernameController.text.trim();
-    String password = passwordController.text.trim();
-    if (email.isEmpty || password.isEmpty) {
-      _showAlertDialog(context, 'Empty Fields', 'Please fill in all fields.');
-      return;
-    }
+    // sign user in method
+    Future<void> signUserIn(BuildContext context) async {
+      String email = usernameController.text.trim();
+      String password = passwordController.text.trim();
+      if (email.isEmpty || password.isEmpty) {
+        _showAlertDialog(context, 'Empty Fields', 'Please fill in all fields.');
+        return;
+      }
 
-    if (!_isValidEmail(email)) {
-      _showAlertDialog(context, 'Invalid Email', 'Please enter a valid email address.');
-      return;
-    }
+      if (!_isValidEmail(email)) {
+        _showAlertDialog(context, 'Invalid Email', 'Please enter a valid email address.');
+        return;
+      }
 
-    try {
-      // Sign in with email and password
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      try {
+        // Sign in with email and password
+        UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
 
-      // Fetch the user document from Firestore using the user's UID
-      DocumentSnapshot<Map<String, dynamic>> userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userCredential.user!.uid) // Use the user's UID obtained after login
-          .get();
+        // Fetch the user document from Firestore using the user's UID
+        DocumentSnapshot<Map<String, dynamic>> userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userCredential.user!.uid) // Use the user's UID obtained after login
+            .get();
 
-      if (userDoc.exists) {
-        // Safely extract the isAdmin field
-        dynamic isAdminField = userDoc.data()?['isAdmin'];
-        bool isAdmin = false;
-        if (isAdminField is bool) {
-          isAdmin = isAdminField;
-        } else if (isAdminField is String) {
-          isAdmin = isAdminField.toLowerCase() == 'true';
-        }
+        if (userDoc.exists) {
+          // Safely extract the isAdmin field
+          dynamic isAdminField = userDoc.data()?['isAdmin'];
+          bool isAdmin = false;
+          if (isAdminField is bool) {
+            isAdmin = isAdminField;
+          } else if (isAdminField is String) {
+            isAdmin = isAdminField.toLowerCase() == 'true';
+          }
 
-        if (isAdmin) {
-          // User is an admin, navigate to the AdminPage
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => AdminPage()),
-          );
+          if (isAdmin) {
+            // User is an admin, navigate to the AdminPage
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => AdminPage()),
+            );
+          } else {
+            // User is not an admin, navigate to the Home screen
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => Home()),
+            );
+          }
         } else {
-          // User is not an admin, navigate to the Home screen
+          // User document does not exist, navigate to the Home screen
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => Home()),
           );
         }
-      } else {
-        // User document does not exist, navigate to the Home screen
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => Home()),
-        );
-      }
-    } catch (error) {
-      // Handle login errors
-      print('Error during login: $error');
-      if (error is FirebaseAuthException) {
-        print('FirebaseAuthException: ${error.code}');
-        if (error.code == 'user-not-found') {
-          _showAlertDialog(context, 'User Not Found', 'No user found with this email.');
-        } else if (error.code == 'wrong-password') {
-          _showAlertDialog(context, 'Incorrect Password', 'The password is incorrect.');
+      } catch (error) {
+        // Handle login errors
+        print('Error during login: $error');
+        if (error is FirebaseAuthException) {
+          print('FirebaseAuthException: ${error.code}');
+          if (error.code == 'user-not-found') {
+            _showAlertDialog(context, 'User Not Found', 'No user found with this email.');
+          } else if (error.code == 'wrong-password') {
+            _showAlertDialog(context, 'Incorrect Password', 'The password is incorrect.');
+          } else {
+            _showAlertDialog(context, 'Login Failed', 'An error occurred during login.');
+          }
         } else {
+          print('Other error occurred during login');
           _showAlertDialog(context, 'Login Failed', 'An error occurred during login.');
         }
-      } else {
-        print('Other error occurred during login');
-        _showAlertDialog(context, 'Login Failed', 'An error occurred during login.');
       }
     }
-  }
 
   // navigate to registration screen method
   void navigateToRegistrationScreen(BuildContext context) {
