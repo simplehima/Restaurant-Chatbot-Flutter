@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../services/product_model.dart';
 import 'cart.dart';
@@ -18,6 +19,8 @@ class _ChatbotState extends State<ChatbotScreen> {
   late Map<String, Product> products = {}; // Change to a map
   List<Product> cart = [];
   int _cartItemCount = 0;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  List<Map<String, dynamic>> availableTables = [];
 
 
   @override
@@ -25,6 +28,7 @@ class _ChatbotState extends State<ChatbotScreen> {
     super.initState();
     _scrollController = ScrollController();
     loadProducts();
+    fetchAvailableTables();
   }
 
   Future<void> loadProducts() async {
@@ -59,12 +63,7 @@ class _ChatbotState extends State<ChatbotScreen> {
     }).toList();
 
     // Pass the converted cartItems list to the CartPage
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CartPage(cartItems: cartItems, resetCart: resetCart),
-      ),
-    );
+   // Navigator.push(context, MaterialPageRoute(builder: (context) => CartPage(cartItems: cartItems, resetCart: resetCart),),);
   }
 
   @override
@@ -137,6 +136,115 @@ class _ChatbotState extends State<ChatbotScreen> {
       _cartItemCount = 0;
     });
   }
+  String? getCurrentUserId() {
+    User? user = FirebaseAuth.instance.currentUser;
+    return user?.uid;
+  }
+
+  Future<void> fetchAvailableTables() async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore.collection('tables').get();
+      List<Map<String, dynamic>> filteredTables = [];
+      for (var doc in querySnapshot.docs) {
+        var tableId = doc.id;
+        var time = doc['time'];
+        var reserved = doc['reserved'] ?? false;
+        var reservedBy = doc['reservedBy'] ?? false;
+        filteredTables.add({
+          "tableId": tableId,
+          "time": time,
+          "reserved": reserved,
+          "reservedBy": reservedBy,
+        });
+      }
+
+      setState(() {
+        availableTables = filteredTables;
+        _scrollToBottom();
+      });
+    } catch (e) {
+      print('Error fetching available tables: $e');
+      throw e; // Rethrow the error to be caught by .catchError()
+    }
+  }
+
+
+  void reserveTableByQuery(String text) {
+    String tableId = text.replaceAll(RegExp(r'[^0-9]'), '');
+    if (availableTables.any((table) => table['tableId'] == tableId)) {
+      if (!availableTables.where((table) => table['tableId'] == tableId).first['reserved']) {
+        reserveOrRemoveTable(tableId);
+        addMessage('Table $tableId has been successfully reserved.');
+        _scrollToBottom();
+      } else {
+        addMessage('Sorry, table $tableId is already reserved.');
+        _scrollToBottom();
+      }
+    } else {
+      addMessage('Sorry, table $tableId is not available.');
+      _scrollToBottom();
+    }
+  }
+
+
+
+  void reserveOrRemoveTable(String tableId, {bool reserve = true}) async {
+    try {
+      String? currentUserId = getCurrentUserId();
+      if (currentUserId == null) {
+        addMessage('You need to be logged in to reserve a table.');
+        _scrollToBottom();
+        return;
+      }
+
+      DocumentReference tableRef = _firestore.collection('tables').doc(tableId);
+      DocumentSnapshot tableSnapshot = await tableRef.get();
+      Map<String, dynamic>? tableData = tableSnapshot.data() as Map<String, dynamic>?;
+
+      if (reserve) {
+        if (tableData != null && !(tableData['reserved'] ?? false)) {
+          await tableRef.update({
+            'reserved': true,
+            'reservedBy': currentUserId,
+            'reservationTime': DateTime.now(),
+
+          });
+          setState(() {
+            availableTables.removeWhere((table) => table['tableId'] == tableId);
+          });
+          addMessage('Table $tableId has been reserved.');
+          _scrollToBottom();
+        } else {
+          addMessage('Sorry, table $tableId is already reserved.');
+          _scrollToBottom();
+        }
+      } else {
+        if (tableData != null && (tableData['reserved'] ?? false)) {
+          await tableRef.update({
+            'reserved': false,
+            'reservedBy': null,
+            'reservationTime': null,
+          });
+          setState(() {
+            availableTables.add({
+              "tableId": tableId,
+              "time": "Some time", // Replace with the appropriate time
+              "reserved": false,
+            });
+          });
+          addMessage('Table $tableId has been unreserved.');
+          _scrollToBottom();
+        } else {
+          addMessage('Table $tableId is not currently reserved.');
+          _scrollToBottom();
+        }
+      }
+    } catch (e) {
+      print('Error reserving or unreserving table: $e');
+    }
+  }
+
+
 
 
   void sendMessage(String text) {
@@ -147,6 +255,7 @@ class _ChatbotState extends State<ChatbotScreen> {
 
     setState(() {
       addMessage(text, isUserMessage: true);
+      _scrollToBottom();
     });
 
     // Check if the user's input is an exact match to any of the function names
@@ -155,28 +264,65 @@ class _ChatbotState extends State<ChatbotScreen> {
         text.trim() == 'findProduct') {
       setState(() {
         addMessage('Sorry, I don\'t understand that. Please provide a valid message.');
+        _scrollToBottom();
       });
       return;
     }
 
+    // Check if the user is inquiring about a product
+    Product? product = findProduct(text);
+    if (product != null) {
+      setState(() {
+        addMessage(
+          '${product.name}\nPrice: \$${product.price}\nDescription: ${product.description}',
+          imageUrl: product.imageUrl, // Display the product image if available
+        );
+      });
+      _scrollToBottom();
+      return;
+    }
+
+    // If no specific product is found, continue with other actions
     String? response = findResponse(text);
     if (response != null) {
       setState(() {
         addMessage(response);
       });
-    } else {
-      Product? product = findProduct(text);
-
-      if (product != null) {
-        setState(() {
-          addMessage(
-            '${product.name}\nPrice: \$${product.price}\nDescription: ${product.description}',
-            imageUrl: product.imageUrl, // Display the product image if available
-          );
-        });
+    } else if (text.toLowerCase().contains('available tables') || text.toLowerCase().contains('free tables')) {
+      fetchAvailableTables().then((_) {
+        // Handle successful completion
+        if (availableTables.isEmpty) {
+          addMessage('There are no available tables at the moment.');
+        } else {
+          String tableList = 'Available Tables:\n';
+          availableTables.forEach((table) {
+            tableList += 'Table ${table["tableId"]} at ${table["time"]}\n';
+          });
+          addMessage(tableList);
+        }
+      }).catchError((error) {
+        // Handle error
+        print('Error fetching available tables: $error');
+        addMessage('An error occurred while fetching available tables.');
+      });
+    } else if (text.toLowerCase().contains('reserve table') || text.toLowerCase().contains('book table')) {
+      String tableId = text.replaceAll(RegExp(r'[^0-9]'), '');
+      if (availableTables.any((table) => table['tableId'] == tableId)) {
+        if (!availableTables.where((table) => table['tableId'] == tableId).first['reserved']) {
+          reserveOrRemoveTable(tableId);
+          addMessage('Table $tableId has been successfully reserved.');
+        } else {
+          addMessage('Sorry, table $tableId is already reserved.');
+        }
       } else {
-        addToCartByQuery(text);
+        addMessage('Sorry, table $tableId is not available.');
       }
+    } else if (text.toLowerCase().contains('unreserve table') || text.toLowerCase().contains('unbook table')) {
+      String tableId = text.replaceAll(RegExp(r'[^0-9]'), '');
+      reserveOrRemoveTable(tableId, reserve: false);
+      // No need to add a message here, it will be added inside reserveOrRemoveTable
+    } else {
+      addToCartByQuery(text);
     }
 
     _scrollToBottom();
@@ -330,6 +476,7 @@ class _ChatbotState extends State<ChatbotScreen> {
         Product? product = products[productId];
         if (product != null) {
           addToCart(product);
+          askForAdditionalItems(context);
           return;
         }
       }
@@ -341,7 +488,6 @@ class _ChatbotState extends State<ChatbotScreen> {
     });
   }
 
-
   void _scrollToBottom() {
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       _scrollController.animateTo(
@@ -351,8 +497,57 @@ class _ChatbotState extends State<ChatbotScreen> {
       );
     });
   }
+  Future<void> askForAdditionalItems(BuildContext context) async {
+    bool? wantsMore = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Add More Items'),
+          content: Text('Do you want to add anything else to your cart?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('No'),
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+            ),
+            TextButton(
+              child: Text('Yes'),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+            ),
+          ],
+        );
+      },
+    );
 
+    if (wantsMore == null || !wantsMore) {
+      navigateToCart();
+    } else {
+      setState(() {
+        addMessage('What else do you want?');
+      });
+    }
+  }
+  void navigateToCart() {
+    // Convert the list of Product objects to the required format
+    List<Map<String, dynamic>> cartItems = cart.map((product) {
+      return {
+        'name': product.name,
+        'price': product.price,
+        'quantity': 1, // Assuming the initial quantity is 1
+      };
+    }).toList();
 
+    // Pass the converted cartItems list to the CartPage
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CartPage(cartItems: cartItems, resetCart: resetCart),
+      ),
+    );
+  }
   String? findResponse(String userQuery) {
     // Convert user query to lowercase for case-insensitive matching
     userQuery = userQuery.toLowerCase();
@@ -368,9 +563,37 @@ class _ChatbotState extends State<ChatbotScreen> {
       'what is the expected time for order to arrive': 'The expected time for your order to arrive is 30 to 60 minutes.',
       'why is the order being late': 'We apologize because we are very busy.',
       'why is my order too late': 'Sorry for the delay in the order due to pressure.',
-      'view cart': 'Here is your cart:',
-      'show me my cart': 'Here is your cart:',
-      'what\'s in my cart': 'Here is your cart:',
+      'Which meal do you recommend for me?': 'I recommend crayfish dish with avocado toast.',
+      'Which meal do you recommend for me': 'I recommend crayfish dish with avocado toast.',
+      'Which burger meal do you recommend for me?': 'I recommend double burger with pineapple juice.',
+      'Which burger meal do you recommend for me': 'I recommend double burger with pineapple juice.',
+      'Which sandwich do you recommend for me?': 'I recommend double burger sandwich.',
+      'Which sandwich do you recommend for me': 'I recommend double burger sandwich.',
+      'What is the most popular dish?': 'Shrimp in one dish is the most popular one.',
+      'What is your best dish?': 'Salmon dish is our best one.',
+      'What is your best dish': 'Salmon dish is our best one.',
+      'What is the best meal you can offer to me?': 'Shrimp basil pasta with orange juice.',
+      'What is the best meal you can offer to me': 'Shrimp basil pasta with orange juice.',
+      'Are there any dishes suitable for vegetarians?': 'Tomato onion flatbread pizza is suitable for vegetarians.',
+      'Are there any dishes unique to your restaurant?': 'Salmon dish is our unique one.',
+      'Are there any dishes unique to your restaurant': 'Salmon dish is our unique one.',
+      'What is the most popular pizza?': 'Taleggio mushroom pizza.',
+      'What is the most popular pizza': 'Taleggio mushroom pizza.',
+      'Can you send us your current location?': '9B new Nasr city towers 10th floor flat no. 69.',
+      'Can you send us your current location': '9B new Nasr city towers 10th floor flat no. 69.',
+      'We need your location in detail': '7B new Nasr city towers 8th floor flat no. 63.',
+      'Where do you want to get the order?': '7B new Nasr city towers 6th floor flat no. 61.',
+      'Where do you want to get the order': '7B new Nasr city towers 6th floor flat no. 61.',
+      'Details of your location please': '7B new Nasr city towers 3rd floor flat no. 62.',
+      'Tell us about your location': '7B new Nasr city towers 1st floor flat no. 64.',
+      'current location': '7B Nasr city beside sports way.',
+      'Can you send me the location please?': '7B Nasr city beside sports way.',
+      'Can you send me the location please': '7B Nasr city beside sports way.',
+      'Thank you': 'You are more than welcome.',
+      'Thanks': 'Happy to help ❤️',
+      '❤️': '❤️'
+
+
     };
     // Iterate through query responses to check if any match the user query
     for (var query in queryResponses.keys) {
@@ -402,6 +625,10 @@ class _ChatbotState extends State<ChatbotScreen> {
       'what are the ingredients of double burger ': '3E6afgB0KLdCdoG8Cp9w',
       'what are the double burger components ': '3E6afgB0KLdCdoG8Cp9w',
       'double burger ingredients please ': '3E6afgB0KLdCdoG8Cp9w',
+      'what is the price of double burger': '3E6afgB0KLdCdoG8Cp9w',  
+      'what is the price of double burger?': '3E6afgB0KLdCdoG8Cp9w',  
+      'what is the double burger price': '3E6afgB0KLdCdoG8Cp9w',  
+      'what is double burger price': '3E6afgB0KLdCdoG8Cp9w',  
 
       // Medium Done Burger
       //'Medium done burger': 'CJl1YFGRva6n2OFsxeGS',
@@ -411,6 +638,10 @@ class _ChatbotState extends State<ChatbotScreen> {
       'what are the ingredients of Medium Done burger ': 'CJl1YFGRva6n2OFsxeGS',
       'what are the Medium Done components ': 'CJl1YFGRva6n2OFsxeGS',
       'Medium Done burger ingredients please ': 'CJl1YFGRva6n2OFsxeGS',
+      'what is the price of Medium done burger': 'CJl1YFGRva6n2OFsxeGS',  
+      'what is the price of Medium done burger?': 'CJl1YFGRva6n2OFsxeGS',  
+      'what is the medium done burger price': 'CJl1YFGRva6n2OFsxeGS',  
+      'what is medium done burger price': 'CJl1YFGRva6n2OFsxeGS',  
 
       // single Burger
       //'single burger': 'RyEJ8XqK5QJNUOu7pgdT',
@@ -420,6 +651,10 @@ class _ChatbotState extends State<ChatbotScreen> {
       'what are the ingredients of Single Burger ': 'RyEJ8XqK5QJNUOu7pgdT',
       'what are the Single Burger components ': 'RyEJ8XqK5QJNUOu7pgdT',
       'single Burger ingredients please ': 'RyEJ8XqK5QJNUOu7pgdT',
+      'what is the price of single burger': 'RyEJ8XqK5QJNUOu7pgdT',  
+      'what is the price of single burger?': 'RyEJ8XqK5QJNUOu7pgdT',  
+      'what is the single burger price': 'RyEJ8XqK5QJNUOu7pgdT',  
+      'what is single burger price': 'RyEJ8XqK5QJNUOu7pgdT',  
 
       //======= End of Burger Category========
       //======================================
@@ -431,6 +666,10 @@ class _ChatbotState extends State<ChatbotScreen> {
       'how much is the pineapple juice': '6UGCrog6xh9iIZCuq6Hb',
       'which size is the pineapple juice': '6UGCrog6xh9iIZCuq6Hb',
       'what is the size of the pineapple juice': '6UGCrog6xh9iIZCuq6Hb',
+      'what is the price of pineapple juice': '6UGCrog6xh9iIZCuq6Hb',  
+      'what is the price of pineapple juice?': '6UGCrog6xh9iIZCuq6Hb',  
+      'what is the pineapple juice price': '6UGCrog6xh9iIZCuq6Hb',  
+      'what is pineapple juice price': '6UGCrog6xh9iIZCuq6Hb',  
 
       // Orange Juice
      // 'orange juice': 'hfTFve6QYMeMGvmLvwBa',
@@ -438,6 +677,10 @@ class _ChatbotState extends State<ChatbotScreen> {
       'how much is the Orange Juice': 'hfTFve6QYMeMGvmLvwBa',
       'which size is the Orange Juice': 'hfTFve6QYMeMGvmLvwBa',
       'what is the size of the Orange Juice': 'hfTFve6QYMeMGvmLvwBa',
+      'what is the price of Orange Juice': 'hfTFve6QYMeMGvmLvwBa',  
+      'what is the price of Orange Juice?': 'hfTFve6QYMeMGvmLvwBa',  
+      'what is the orange juice price': 'hfTFve6QYMeMGvmLvwBa',  
+      'what is orange juice price': 'hfTFve6QYMeMGvmLvwBa',  
 
       // Cranberry Juice
      // 'cranberry juice': 'oGb2o6Wy0iC9h3HGBEu6',
@@ -445,6 +688,10 @@ class _ChatbotState extends State<ChatbotScreen> {
       'how much is the Cranberry  juice': 'oGb2o6Wy0iC9h3HGBEu6',
       'which size is the Cranberry  juice': 'oGb2o6Wy0iC9h3HGBEu6',
       'what is the size of the Cranberry  juice': 'oGb2o6Wy0iC9h3HGBEu6',
+      'what is the price of cranberry juice': 'oGb2o6Wy0iC9h3HGBEu6',  
+      'what is the price of cranberry juice?': 'oGb2o6Wy0iC9h3HGBEu6',  
+      'what is the cranberry juice price': 'oGb2o6Wy0iC9h3HGBEu6',  
+      'what is cranberry juice price': 'oGb2o6Wy0iC9h3HGBEu6',  
 
       //======= End of Juice Category=========
       //======================================
@@ -458,6 +705,10 @@ class _ChatbotState extends State<ChatbotScreen> {
       'what are the ingredients of salmon dish ': '9Y1ezAHrVrWCUdgjfMn0',
       'what are the salmon dish components ': '9Y1ezAHrVrWCUdgjfMn0',
       'salmon dish ingredients please ': '9Y1ezAHrVrWCUdgjfMn0',
+      'what is the price of salmon dish': '9Y1ezAHrVrWCUdgjfMn0',  
+      'what is the price of salmon dish?': '9Y1ezAHrVrWCUdgjfMn0',  
+      'what is the salmon dish price': '9Y1ezAHrVrWCUdgjfMn0',  
+      'what is salmon dish price': '9Y1ezAHrVrWCUdgjfMn0',  
 
       // 6 pieces of shrimp in one dish
       //'6 pieces of shrimp in one dish': 'Fon4lcJ9B7lYE6ZL1WXl',
@@ -467,6 +718,10 @@ class _ChatbotState extends State<ChatbotScreen> {
       'what are the ingredients of 6 pieces of shrimp ': 'Fon4lcJ9B7lYE6ZL1WXl',
       'what are the 6 pieces of shrimp components ': 'Fon4lcJ9B7lYE6ZL1WXl',
       '6 pieces of shrimp dish ingredients please ': 'Fon4lcJ9B7lYE6ZL1WXl',
+      'what is the price of shrimp in one dish': 'Fon4lcJ9B7lYE6ZL1WXl',  
+      'what is the price of shrimp in one dish?': 'Fon4lcJ9B7lYE6ZL1WXl',  
+      'what is the shrimp in one dish price': 'Fon4lcJ9B7lYE6ZL1WXl',  
+      'what is shrimp in one dish price': 'Fon4lcJ9B7lYE6ZL1WXl',  
 
       // Cray Fish Dish
      // 'cray fish dish': 'fKTdkU2PQ1ZA3YIDsQYU',
@@ -476,6 +731,10 @@ class _ChatbotState extends State<ChatbotScreen> {
       'what are the ingredients of Cray Fish Dish ': 'fKTdkU2PQ1ZA3YIDsQYU',
       'what are the Cray Fish Dish components ': 'fKTdkU2PQ1ZA3YIDsQYU',
       'Cray Fish Dish ingredients please ': 'fKTdkU2PQ1ZA3YIDsQYU',
+      'what is the price of cray fish dish': 'fKTdkU2PQ1ZA3YIDsQYU',  
+      'what is the price of cray fish dish?': 'fKTdkU2PQ1ZA3YIDsQYU',  
+      'what is the cray fish dish price': 'fKTdkU2PQ1ZA3YIDsQYU',  
+      'what is cray fish dish price': 'fKTdkU2PQ1ZA3YIDsQYU',  
 
       //======= End of Seafood Category=======
       //======================================
@@ -489,6 +748,11 @@ class _ChatbotState extends State<ChatbotScreen> {
       'what are the ingredients of Beef Bacon Sandwich ': 'D7ndDTMatnlSwBzo6jMb',
       'what are the Beef Bacon Sandwich components ': 'D7ndDTMatnlSwBzo6jMb',
       'Beef Bacon Sandwich ingredients please ': 'D7ndDTMatnlSwBzo6jMb',
+      'what is the price of Beef Bacon Sandwich': 'D7ndDTMatnlSwBzo6jMb',  
+      'what is the price of Beef Bacon Sandwich?': 'D7ndDTMatnlSwBzo6jMb',  
+      'what is the Beef Bacon Sandwich price': 'D7ndDTMatnlSwBzo6jMb',  
+      'what is Beef Bacon Sandwich price': 'D7ndDTMatnlSwBzo6jMb', // Commen
+
 
       // Cheese with avocado toast
      // 'cheese with avocado toast':'D7ndDTMatnlSwBzo6jMb',
@@ -498,6 +762,10 @@ class _ChatbotState extends State<ChatbotScreen> {
       'what are the ingredients of Cheese with avocado toast ': 'Piy20zDW7yZUdEMR3QGd',
       'what are the Cheese with avocado toast components ': 'Piy20zDW7yZUdEMR3QGd',
       'Cheese with avocado toast ingredients please ': 'Piy20zDW7yZUdEMR3QGd',
+      'what is the price of avocado toast': 'Piy20zDW7yZUdEMR3QGd',  
+      'what is the price of avocado toast?': 'Piy20zDW7yZUdEMR3QGd',  
+      'what is the avocado toast price': 'Piy20zDW7yZUdEMR3QGd',  
+      'what is avocado toast price': 'Piy20zDW7yZUdEMR3QGd',  
 
       // Cheese Sandwich
       //'cheese sandwich': 'ViV3WKIRatEKWCHM1TW9',
@@ -507,6 +775,10 @@ class _ChatbotState extends State<ChatbotScreen> {
       'what are the ingredients of Cheese sandwich ': 'ViV3WKIRatEKWCHM1TW9',
       'what are the Cheese sandwich components ': 'ViV3WKIRatEKWCHM1TW9',
       'Cheese sandwich ingredients please ': 'ViV3WKIRatEKWCHM1TW9',
+      'what is the price of cheese sandwich': 'ViV3WKIRatEKWCHM1TW9',  
+      'what is the price of cheese sandwich?': 'ViV3WKIRatEKWCHM1TW9',  
+      'what is the cheese sandwich price': 'ViV3WKIRatEKWCHM1TW9',  
+      'what is cheese sandwich price': 'ViV3WKIRatEKWCHM1TW9', // Commen
 
 
       //======= End of Sandwiches Category=======
@@ -521,6 +793,10 @@ class _ChatbotState extends State<ChatbotScreen> {
       'what are the ingredients of Alfredo Sauce Pasta Dish ': 'LNJrDPzs6uBgPHcJLTZQ',
       'what are the Alfredo Sauce Pasta Dish components ': 'LNJrDPzs6uBgPHcJLTZQ',
       'Alfredo Sauce Pasta Dish ingredients please ': 'LNJrDPzs6uBgPHcJLTZQ',
+      'what is the price of alfredo sauce pasta': 'LNJrDPzs6uBgPHcJLTZQ',  
+      'what is the price of alfredo sauce pasta?': 'LNJrDPzs6uBgPHcJLTZQ',  
+      'what is the alfredo sauce pasta price': 'LNJrDPzs6uBgPHcJLTZQ',  
+      'what is alfredo sauce pasta price': 'LNJrDPzs6uBgPHcJLTZQ',  
 
       // Shrimp Basil Pasta
       //'shrimp basil pasta': 'cl3Oc8lG22oS8d3QYXee',
@@ -530,6 +806,10 @@ class _ChatbotState extends State<ChatbotScreen> {
       'what are the ingredients of shrimp basil Pasta Dish ': 'cl3Oc8lG22oS8d3QYXee',
       'what are the shrimp basil Pasta Dish components ': 'cl3Oc8lG22oS8d3QYXee',
       'shrimp basil Pasta Dish ingredients please ': 'cl3Oc8lG22oS8d3QYXee',
+      'what is the price of shrimp basil pasta': 'cl3Oc8lG22oS8d3QYXee',  
+      'what is the price of shrimp basil pasta?': 'cl3Oc8lG22oS8d3QYXee',  
+      'what is the shrimp basil pasta price': 'cl3Oc8lG22oS8d3QYXee',  
+      'what is shrimp basil pasta price': 'cl3Oc8lG22oS8d3QYXee',  
 
       //======= End of Pasta Category=========
       //======================================
@@ -543,6 +823,10 @@ class _ChatbotState extends State<ChatbotScreen> {
       'what are the ingredients of Taleggio Mushroom Pizza ': 'uDwNcCzFxsIF99WNWo0w',
       'what are the Taleggio Mushroom Pizza components ': 'uDwNcCzFxsIF99WNWo0w',
       'Taleggio Mushroom Pizza ingredients please ': 'uDwNcCzFxsIF99WNWo0w',
+      'what is the price of taleggio mushroom pizza': 'uDwNcCzFxsIF99WNWo0w',  
+      'what is the price of taleggio mushroom pizza?': 'uDwNcCzFxsIF99WNWo0w',  
+      'what is the taleggio mushroom pizza price': 'uDwNcCzFxsIF99WNWo0w',  
+      'what is taleggio mushroom pizza price': 'uDwNcCzFxsIF99WNWo0w',  
 
       // Tomato Onion Flatbread Pizza
      // 'tomato onion flatbread pizza': 'VffDyQqG5hTXTQflaRkE',
@@ -552,6 +836,10 @@ class _ChatbotState extends State<ChatbotScreen> {
       'what are the ingredients of Tomato Onion Flatbread Pizza ': 'VffDyQqG5hTXTQflaRkE',
       'what are the Tomato Onion Flatbread Pizza components ': 'VffDyQqG5hTXTQflaRkE',
       'Tomato Onion Flatbread Pizza ingredients please ': 'VffDyQqG5hTXTQflaRkE',
+      'what is the price of tomato onion flatbread pizza': 'VffDyQqG5hTXTQflaRkE',  
+      'what is the price of tomato onion flatbread pizza?': 'VffDyQqG5hTXTQflaRkE',  
+      'what is the tomato onion flatbread pizza price': 'VffDyQqG5hTXTQflaRkE',  
+      'what is tomato onion flatbread pizza price': 'VffDyQqG5hTXTQflaRkE',  
 
       // Pizza Napoletana
      // 'pizza Napoletana': 'gpDByh8XqS9uLGssJQHi',
@@ -561,6 +849,10 @@ class _ChatbotState extends State<ChatbotScreen> {
       'what are the ingredients of pizza Napoletana ': 'gpDByh8XqS9uLGssJQHi',
       'what are the pizza Napoletana components ': 'gpDByh8XqS9uLGssJQHi',
       'pizza Napoletana ingredients please ': 'gpDByh8XqS9uLGssJQHi',
+      'what is the price of pizza Napoletana': 'gpDByh8XqS9uLGssJQHi',  
+      'what is the price of pizza Napoletana?': 'gpDByh8XqS9uLGssJQHi',  
+      'what is the pizza Napoletana price': 'gpDByh8XqS9uLGssJQHi',  
+      'what is pizza Napoletana price': 'gpDByh8XqS9uLGssJQHi',  
 
       // Shrimp pizza
      // 'shrimp pizza': 'xYfHX93OIV7XFeBDF7b2',
@@ -570,6 +862,10 @@ class _ChatbotState extends State<ChatbotScreen> {
       'what are the ingredients of Shrimp pizza ': 'xYfHX93OIV7XFeBDF7b2',
       'what are the Shrimp pizza components ': 'xYfHX93OIV7XFeBDF7b2',
       'Shrimp pizza ingredients please ': 'xYfHX93OIV7XFeBDF7b2',
+      'what is the price of shrimp pizza': 'xYfHX93OIV7XFeBDF7b2',  
+      'what is the price of shrimp pizza?': 'xYfHX93OIV7XFeBDF7b2',  
+      'what is the shrimp pizza price': 'xYfHX93OIV7XFeBDF7b2',  
+      'what is shrimp pizza price': 'xYfHX93OIV7XFeBDF7b2',  
 
 
       //======= End of Pizza Category=========
@@ -579,10 +875,11 @@ class _ChatbotState extends State<ChatbotScreen> {
 
     // Iterate through query keywords to check if any match the user query
     for (var keyword in queryKeywords.keys) {
-      if (userQuery.contains(keyword.toLowerCase())) {
+      if (userQuery == keyword.toLowerCase()) {
         String productId = queryKeywords[keyword]!;
         return products[productId];
       }
+
     }
 
     // If no specific product is found, return null
