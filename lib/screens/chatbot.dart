@@ -269,6 +269,18 @@ class _ChatbotState extends State<ChatbotScreen> {
       return;
     }
 
+    // Check if the user's input contains the word "menu" (case-insensitive)
+    if (text.toLowerCase().contains('menu')) {
+      String menuMessage = 'Here is our menu:\n\n';
+      products.forEach((productId, product) {
+        menuMessage += '${product.name} - \$${product.price}\n';
+      });
+      setState(() {
+        addMessage(menuMessage);
+      });
+      return;
+    }
+
     // Check if the user is inquiring about a product
     Product? product = findProduct(text);
     if (product != null) {
