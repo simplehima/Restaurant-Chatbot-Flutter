@@ -357,6 +357,14 @@ class _ChatbotState extends State<ChatbotScreen> {
       'add double burger to my cart': '3E6afgB0KLdCdoG8Cp9w',
       'i want double burger': '3E6afgB0KLdCdoG8Cp9w',
       'i want to order double burger': '3E6afgB0KLdCdoG8Cp9w',
+      'can i order double burger': '3E6afgB0KLdCdoG8Cp9w',
+      'i need double burger please': '3E6afgB0KLdCdoG8Cp9w',
+      'my order is one double burger': '3E6afgB0KLdCdoG8Cp9w',
+      'add double burger sandwich to my cart': '3E6afgB0KLdCdoG8Cp9w',
+      'i need D. burger sandwich': '3E6afgB0KLdCdoG8Cp9w',
+      'my order is one D. burger sandwich': '3E6afgB0KLdCdoG8Cp9w',
+      'order is one D. burger sandwich': '3E6afgB0KLdCdoG8Cp9w',
+      'my order is one Double burger sandwich': '3E6afgB0KLdCdoG8Cp9w',
 
       // Medium Done Burger
       'i want to buy medium done burger': 'CJl1YFGRva6n2OFsxeGS',
@@ -364,6 +372,12 @@ class _ChatbotState extends State<ChatbotScreen> {
       'add medium done burger to my cart': 'CJl1YFGRva6n2OFsxeGS',
       'i want medium done burger': 'CJl1YFGRva6n2OFsxeGS',
       'i want to order medium done burger': 'CJl1YFGRva6n2OFsxeGS',
+      'can i order medium done burger': 'CJl1YFGRva6n2OFsxeGS',
+      'i need medium done please': 'CJl1YFGRva6n2OFsxeGS',
+      'my order is one medium done burger': 'CJl1YFGRva6n2OFsxeGS',
+      'i need M. done burger': 'CJl1YFGRva6n2OFsxeGS',
+      'order is one medium done burger': 'CJl1YFGRva6n2OFsxeGS',
+      'order is medium done burger': 'CJl1YFGRva6n2OFsxeGS',
 
       // Single Burger
       'i want to buy single burger': 'RyEJ8XqK5QJNUOu7pgdT',
@@ -371,6 +385,14 @@ class _ChatbotState extends State<ChatbotScreen> {
       'add single burger to my cart': 'RyEJ8XqK5QJNUOu7pgdT',
       'i want single burger': 'RyEJ8XqK5QJNUOu7pgdT',
       'i want to order single burger': 'RyEJ8XqK5QJNUOu7pgdT',
+      'can i order single burger': 'RyEJ8XqK5QJNUOu7pgdT',
+      'i need single burger please': 'RyEJ8XqK5QJNUOu7pgdT',
+      'my order is one single burger': 'RyEJ8XqK5QJNUOu7pgdT',
+      'add single burger sandwich to my cart': 'RyEJ8XqK5QJNUOu7pgdT',
+      'i need S. burger sandwich': 'RyEJ8XqK5QJNUOu7pgdT',
+      'my order is one S. burger sandwich': 'RyEJ8XqK5QJNUOu7pgdT',
+      'order is S. burger sandwich': 'RyEJ8XqK5QJNUOu7pgdT',
+      'order is Single burger sandwich': 'RyEJ8XqK5QJNUOu7pgdT',
 
       // Pineapple Juice
       'i want to buy pineapple juice': '6UGCrog6xh9iIZCuq6Hb',
@@ -378,6 +400,9 @@ class _ChatbotState extends State<ChatbotScreen> {
       'add pineapple juice to my cart': '6UGCrog6xh9iIZCuq6Hb',
       'i want pineapple juice': '6UGCrog6xh9iIZCuq6Hb',
       'i want to order pineapple juice': '6UGCrog6xh9iIZCuq6Hb',
+      'add pineapple juice please': '6UGCrog6xh9iIZCuq6Hb',
+      'i want to add pineapple juice to my order': '6UGCrog6xh9iIZCuq6Hb',
+      'order is pineapple juice': '6UGCrog6xh9iIZCuq6Hb',
 
       // Orange Juice
       'i want to buy orange juice': 'hfTFve6QYMeMGvmLvwBa',
@@ -385,6 +410,9 @@ class _ChatbotState extends State<ChatbotScreen> {
       'add orange juice to my cart': 'hfTFve6QYMeMGvmLvwBa',
       'i want orange juice': 'hfTFve6QYMeMGvmLvwBa',
       'i want to order orange juice': 'hfTFve6QYMeMGvmLvwBa',
+      'add orange juice please': 'hfTFve6QYMeMGvmLvwBa',
+      'i want to add orange juice to my order': 'hfTFve6QYMeMGvmLvwBa',
+      'order is orange juice': 'hfTFve6QYMeMGvmLvwBa',
 
       // Cranberry Juice
       'i want to buy cranberry juice': 'oGb2o6Wy0iC9h3HGBEu6',
@@ -392,92 +420,178 @@ class _ChatbotState extends State<ChatbotScreen> {
       'add cranberry juice to my cart': 'oGb2o6Wy0iC9h3HGBEu6',
       'i want cranberry juice': 'oGb2o6Wy0iC9h3HGBEu6',
       'i want to order cranberry juice': 'oGb2o6Wy0iC9h3HGBEu6',
-
-      // Salmon Dish
+      'add cranberry juice please': 'oGb2o6Wy0iC9h3HGBEu6',
+      'i want to add cranberry juice to my order': 'oGb2o6Wy0iC9h3HGBEu6',
+      'order is cranberry juice': 'oGb2o6Wy0iC9h3HGBEu6',
+// Salmon Dish
       'i want to buy salmon dish': '9Y1ezAHrVrWCUdgjfMn0',
       'can i have salmon dish': '9Y1ezAHrVrWCUdgjfMn0',
       'add salmon dish to my cart': '9Y1ezAHrVrWCUdgjfMn0',
       'i want salmon dish': '9Y1ezAHrVrWCUdgjfMn0',
       'i want to order salmon dish': '9Y1ezAHrVrWCUdgjfMn0',
+      'my order is one salmon dish': '9Y1ezAHrVrWCUdgjfMn0',
+      'add salmondish to my cart': '9Y1ezAHrVrWCUdgjfMn0',
+      'i need salmon dish': '9Y1ezAHrVrWCUdgjfMn0',
+      'my order is one salmondish': '9Y1ezAHrVrWCUdgjfMn0',
+      'order is one salmondish': '9Y1ezAHrVrWCUdgjfMn0',
+      'order is one salmon dish': '9Y1ezAHrVrWCUdgjfMn0',
 
-      // 6 Pieces of Shrimp in One Dish
+// 6 Pieces of Shrimp in One Dish
       'i want to buy 6 pieces of shrimp in one dish': 'Fon4lcJ9B7lYE6ZL1WXl',
       'can i have 6 pieces of shrimp in one dish': 'Fon4lcJ9B7lYE6ZL1WXl',
       'add 6 pieces of shrimp in one dish to my cart': 'Fon4lcJ9B7lYE6ZL1WXl',
       'i want 6 pieces of shrimp in one dish': 'Fon4lcJ9B7lYE6ZL1WXl',
       'i want to order 6 pieces of shrimp in one dish': 'Fon4lcJ9B7lYE6ZL1WXl',
+      'my order is 6 pieces of shrimp in one dish': 'Fon4lcJ9B7lYE6ZL1WXl',
+      'add 6 pieces of shrimp in one dish to my cart': 'Fon4lcJ9B7lYE6ZL1WXl',
+      'i need 6 pieces of shrimp in one dish': 'Fon4lcJ9B7lYE6ZL1WXl',
+      'my order 6 pieces of shrimp': 'Fon4lcJ9B7lYE6ZL1WXl',
+      'my order 6 pieces shrimp dish': 'Fon4lcJ9B7lYE6ZL1WXl',
+      'my order is 6 shrimp in one dish': 'Fon4lcJ9B7lYE6ZL1WXl',
+      'order is 6 shrimp in one dish': 'Fon4lcJ9B7lYE6ZL1WXl',
+      'order is 6 shrimp dish': 'Fon4lcJ9B7lYE6ZL1WXl',
 
-      // Cray Fish Dish
+// Cray Fish Dish
       'i want to buy cray fish dish': 'fKTdkU2PQ1ZA3YIDsQYU',
       'can i have cray fish dish': 'fKTdkU2PQ1ZA3YIDsQYU',
       'add cray fish dish to my cart': 'fKTdkU2PQ1ZA3YIDsQYU',
       'i want cray fish dish': 'fKTdkU2PQ1ZA3YIDsQYU',
       'i want to order cray fish dish': 'fKTdkU2PQ1ZA3YIDsQYU',
+      'my order is cray fish dish': 'fKTdkU2PQ1ZA3YIDsQYU',
+      'add cray fishdish to my cart': 'fKTdkU2PQ1ZA3YIDsQYU',
+      'i need cray fish dish': 'fKTdkU2PQ1ZA3YIDsQYU',
+      'my order cray fish dish': 'fKTdkU2PQ1ZA3YIDsQYU',
+      'my order crayfish dish': 'fKTdkU2PQ1ZA3YIDsQYU',
+      'my order is crayfish dish': 'fKTdkU2PQ1ZA3YIDsQYU',
+      'order is cray fish dish': 'fKTdkU2PQ1ZA3YIDsQYU',
+      'order is crayfish dish': 'fKTdkU2PQ1ZA3YIDsQYU',
 
-      // Beef Bacon Sandwich
+// Beef Bacon Sandwich
       'i want to buy beef bacon sandwich': 'D7ndDTMatnlSwBzo6jMb',
       'can i have beef bacon sandwich': 'D7ndDTMatnlSwBzo6jMb',
       'add beef bacon sandwich to my cart': 'D7ndDTMatnlSwBzo6jMb',
       'i want beef bacon sandwich': 'D7ndDTMatnlSwBzo6jMb',
       'i want to order beef bacon sandwich': 'D7ndDTMatnlSwBzo6jMb',
+      'my order is beef bacon sandwich': 'D7ndDTMatnlSwBzo6jMb',
+      'add beefbacon sandwich to my cart': 'D7ndDTMatnlSwBzo6jMb',
+      'i need beef bacon sandwich': 'D7ndDTMatnlSwBzo6jMb',
+      'my order beef bacon sandwich': 'D7ndDTMatnlSwBzo6jMb',
+      'my order beefbacon sandwich': 'D7ndDTMatnlSwBzo6jMb',
+      'my order is beefbacon sandwich': 'D7ndDTMatnlSwBzo6jMb',
+      'order is beef bacon sandwich': 'D7ndDTMatnlSwBzo6jMb',
+      'order is beefbacon sandwich': 'D7ndDTMatnlSwBzo6jMb',
 
-      // Cheese with Avocado Toast
+// Cheese with Avocado Toast
       'i want to buy cheese with avocado toast': 'Piy20zDW7yZUdEMR3QGd',
       'can i have cheese with avocado toast': 'Piy20zDW7yZUdEMR3QGd',
       'add cheese with avocado toast to my cart': 'Piy20zDW7yZUdEMR3QGd',
       'i want cheese with avocado toast': 'Piy20zDW7yZUdEMR3QGd',
       'i want to order cheese with avocado toast': 'Piy20zDW7yZUdEMR3QGd',
-
-      // Cheese Sandwich
+      'my order is cheese with avocado toast': 'Piy20zDW7yZUdEMR3QGd',
+      'add cheese with avocado toast please': 'Piy20zDW7yZUdEMR3QGd',
+      'i need cheese with avocado toast': 'Piy20zDW7yZUdEMR3QGd',
+      'my order is cheese with avocadotoast': 'Piy20zDW7yZUdEMR3QGd',
+      'my order cheese with avocado toast': 'Piy20zDW7yZUdEMR3QGd',
+      'my order is cheese with avocado': 'Piy20zDW7yZUdEMR3QGd',
+      'order is cheese with avocado': 'Piy20zDW7yZUdEMR3QGd',
+      'order is avocado cheese toast': 'Piy20zDW7yZUdEMR3QGd',
+// Cheese Sandwich
       'i want to buy cheese sandwich': 'ViV3WKIRatEKWCHM1TW9',
       'can i have cheese sandwich': 'ViV3WKIRatEKWCHM1TW9',
       'add cheese sandwich to my cart': 'ViV3WKIRatEKWCHM1TW9',
       'i want cheese sandwich': 'ViV3WKIRatEKWCHM1TW9',
       'i want to order cheese sandwich': 'ViV3WKIRatEKWCHM1TW9',
+      'my order is cheese sandwich': 'ViV3WKIRatEKWCHM1TW9',
+      'add cheese sandwich please': 'ViV3WKIRatEKWCHM1TW9',
+      'i need cheese sandwich': 'ViV3WKIRatEKWCHM1TW9',
+      'my order is cheesesandwich': 'ViV3WKIRatEKWCHM1TW9',
+      'my order cheese sandwich': 'ViV3WKIRatEKWCHM1TW9',
+      'order is cheese sandwich': 'ViV3WKIRatEKWCHM1TW9',
+      'order is cheese sand.': 'ViV3WKIRatEKWCHM1TW9',
 
-      // Alfredo Sauce Pasta
+// Alfredo Sauce Pasta
       'i want to buy alfredo sauce pasta': 'LNJrDPzs6uBgPHcJLTZQ',
       'can i have alfredo sauce pasta': 'LNJrDPzs6uBgPHcJLTZQ',
       'add alfredo sauce pasta to my cart': 'LNJrDPzs6uBgPHcJLTZQ',
       'i want alfredo sauce pasta': 'LNJrDPzs6uBgPHcJLTZQ',
       'i want to order alfredo sauce pasta': 'LNJrDPzs6uBgPHcJLTZQ',
+      'my order is alfredo sauce pasta': 'LNJrDPzs6uBgPHcJLTZQ',
+      'add alfredo sauce pasta please': 'LNJrDPzs6uBgPHcJLTZQ',
+      'i need alfredo sauce pasta': 'LNJrDPzs6uBgPHcJLTZQ',
+      'my order is alfredosauce pasta': 'LNJrDPzs6uBgPHcJLTZQ',
+      'my order alfredo sauce pasta': 'LNJrDPzs6uBgPHcJLTZQ',
+      'order is alfredo sauce pasta': 'LNJrDPzs6uBgPHcJLTZQ',
+      'order is alfredosauce pasta': 'LNJrDPzs6uBgPHcJLTZQ',
 
-      // Shrimp Basil Pasta
+// Shrimp Basil Pasta
       'i want to buy shrimp basil pasta': 'cl3Oc8lG22oS8d3QYXee',
       'can i have shrimp basil pasta': 'cl3Oc8lG22oS8d3QYXee',
       'add shrimp basil pasta to my cart': 'cl3Oc8lG22oS8d3QYXee',
       'i want shrimp basil pasta': 'cl3Oc8lG22oS8d3QYXee',
       'i want to order shrimp basil pasta': 'cl3Oc8lG22oS8d3QYXee',
+      'my order is shrimp basil pasta': 'cl3Oc8lG22oS8d3QYXee',
+      'add shrimp basil pasta please': 'cl3Oc8lG22oS8d3QYXee',
+      'i need shrimp basil pasta': 'cl3Oc8lG22oS8d3QYXee',
+      'my order is shrimpbasil pasta': 'cl3Oc8lG22oS8d3QYXee',
+      'my order shrimp basil pasta': 'cl3Oc8lG22oS8d3QYXee',
+      'order is shrimp basil pasta': 'cl3Oc8lG22oS8d3QYXee',
+      'order is shrimpbasil pasta': 'cl3Oc8lG22oS8d3QYXee',
 
-      // Taleggio Mushroom Pizza
+// Taleggio Mushroom Pizza
       'i want to buy taleggio mushroom pizza': 'uDwNcCzFxsIF99WNWo0w',
       'can i have taleggio mushroom pizza': 'uDwNcCzFxsIF99WNWo0w',
       'add taleggio mushroom pizza to my cart': 'uDwNcCzFxsIF99WNWo0w',
       'i want taleggio mushroom pizza': 'uDwNcCzFxsIF99WNWo0w',
       'i want to order taleggio mushroom pizza': 'uDwNcCzFxsIF99WNWo0w',
+      'my order is taleggio mushroom pizza': 'uDwNcCzFxsIF99WNWo0w',
+      'add taleggio mushroom pizza please': 'uDwNcCzFxsIF99WNWo0w',
+      'i need taleggio mushroom pizza': 'uDwNcCzFxsIF99WNWo0w',
+      'my order is taleggiomushroom pizza': 'uDwNcCzFxsIF99WNWo0w',
+      'my order taleggio mushroom pizza': 'uDwNcCzFxsIF99WNWo0w',
+      'order is taleggio mushroom pizza': 'uDwNcCzFxsIF99WNWo0w',
+      'order is mushroom pizza': 'uDwNcCzFxsIF99WNWo0w',
 
-      // Tomato Onion Flatbread Pizza
+// Tomato Onion Flatbread Pizza
       'i want to buy tomato onion flatbread pizza': 'VffDyQqG5hTXTQflaRkE',
       'can i have tomato onion flatbread pizza': 'VffDyQqG5hTXTQflaRkE',
       'add tomato onion flatbread pizza to my cart': 'VffDyQqG5hTXTQflaRkE',
       'i want tomato onion flatbread pizza': 'VffDyQqG5hTXTQflaRkE',
       'i want to order tomato onion flatbread pizza': 'VffDyQqG5hTXTQflaRkE',
-
-      // Pizza Napoletana
+      'my order is tomato onion flatbread pizza': 'VffDyQqG5hTXTQflaRkE',
+      'add tomato onion flatbread pizza please': 'VffDyQqG5hTXTQflaRkE',
+      'i need tomato onion flatbread pizza': 'VffDyQqG5hTXTQflaRkE',
+      'my order is tomatoonion flatbread pizza': 'VffDyQqG5hTXTQflaRkE',
+      'my order tomato onion pizza': 'VffDyQqG5hTXTQflaRkE',
+      'order is tomato onion flatbread pizza': 'VffDyQqG5hTXTQflaRkE',
+      'order is tomato onion pizza': 'VffDyQqG5hTXTQflaRkE',
+// Pizza Napoletana
       'i want to buy pizza napoletana': 'gpDByh8XqS9uLGssJQHi',
       'can i have pizza napoletana': 'gpDByh8XqS9uLGssJQHi',
       'add pizza napoletana to my cart': 'gpDByh8XqS9uLGssJQHi',
       'i want pizza napoletana': 'gpDByh8XqS9uLGssJQHi',
       'i want to order pizza napoletana': 'gpDByh8XqS9uLGssJQHi',
+      'my order is pizza napoletana': 'gpDByh8XqS9uLGssJQHi',
+      'add pizza napoletana please': 'gpDByh8XqS9uLGssJQHi',
+      'i need pizza napoletana': 'gpDByh8XqS9uLGssJQHi',
+      'my order is pizzanapoletana': 'gpDByh8XqS9uLGssJQHi',
+      'my order pizza napoletana': 'gpDByh8XqS9uLGssJQHi',
+      'order is pizza napoletana': 'gpDByh8XqS9uLGssJQHi',
+      'order is pizzanapoletana': 'gpDByh8XqS9uLGssJQHi',
 
-      // Shrimp Pizza
+// Shrimp Pizza
       'i want to buy shrimp pizza': 'xYfHX93OIV7XFeBDF7b2',
       'can i have shrimp pizza': 'xYfHX93OIV7XFeBDF7b2',
       'add shrimp pizza to my cart': 'xYfHX93OIV7XFeBDF7b2',
       'i want shrimp pizza': 'xYfHX93OIV7XFeBDF7b2',
       'i want to order shrimp pizza': 'xYfHX93OIV7XFeBDF7b2',
+      'my order is shrimp pizza': 'xYfHX93OIV7XFeBDF7b2',
+      'add shrimp pizza please': 'xYfHX93OIV7XFeBDF7b2',
+      'i need shrimp pizza': 'xYfHX93OIV7XFeBDF7b2',
+      'my order shrimp pizza': 'xYfHX93OIV7XFeBDF7b2',
+      'my order shrimppizza': 'xYfHX93OIV7XFeBDF7b2',
+      'order is shrimp pizza': 'xYfHX93OIV7XFeBDF7b2',
+      'order is shrimppizza': 'xYfHX93OIV7XFeBDF7b2',
     };
-
     // Convert user query to lowercase for case-insensitive matching
     text = text.toLowerCase();
 
@@ -603,9 +717,26 @@ class _ChatbotState extends State<ChatbotScreen> {
       'Can you send me the location please': '7B Nasr city beside sports way.',
       'Thank you': 'You are more than welcome.',
       'Thanks': 'Happy to help ❤️',
-      '❤️': '❤️'
-
-
+      '❤️': '❤️',
+      'hi': 'How can I help you?',
+      'hello': 'How can I help you?',
+      'good morning': 'Good morning, how can I help you?',
+      'good evening': 'Good evening, how can I help you?',
+      'good afternoon': 'Good afternoon, how can I help you?',
+      'can anyone help me': 'Sure, how can I help you?',
+      'hii': 'Hi sir, how can I help you?',
+      'hey': 'How can I help you?',
+      'helo': 'How can I help you?',
+      'could anyone help me': 'Sure, we are at your service.',
+      'how are you': 'Fine, how can I help you?',
+      'how are you?': 'Fine, how can I help you?',
+      'is there anyone here': 'Of course, how can I help you?',
+      'i need to make an order': 'Sure, how can I help you?',
+      'i want to know delivery time': 'From 45 to 60 minutes.',
+      'delivery time please': 'From 45 to 60 minutes.',
+      'is there anybody to help': 'Yes, I am here.',
+      'i need help': 'How can I help you sir?',
+      'i want someone to help me': 'I\'m here to help you.',
     };
     // Iterate through query responses to check if any match the user query
     for (var query in queryResponses.keys) {
